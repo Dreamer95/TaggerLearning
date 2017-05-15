@@ -1,0 +1,6 @@
+﻿Tag: S NNP RB VB NN PRP CC
+****
+Nam_NNP đang_RB học_VB bài_NN
+Nó_PRP thích_VB đọc_VB báo_NN
+Lan_NNP đã_RB về_VB nhà_NN
+Nam_NNP và_CC Lan_NNP đang_RB học_NN
