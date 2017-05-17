@@ -147,7 +147,25 @@ public class Main {
         }
     }
     
-    static void smoothTransition(Map<String, ArrayList<TAG>> Transition){
-        
+   static void smoothTransition(Map<String, ArrayList<TAG>> Transition,
+            Map<String, Float> TotalTable,
+            ArrayList<String> tag)
+    {
+        float total;
+        ArrayList<TAG> result;
+        for(String s : tag){
+            total = TotalTable.get(s);
+            total += 6; // smooth mẫu +6
+            result = Transition.get(s);
+            for(TAG t :result){
+                if(t.getValue()==0){
+                    //nếu giá trị = 0 thì smooth = 1/total
+                    t.setValue(1/total);
+                }else{
+                    //ngược lại smooth = value+1/total
+                    t.setValue((t.getValue()+1)/total);
+                }
+            }
+        }
     }
 }
