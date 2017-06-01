@@ -16,12 +16,26 @@ public class Main {
 
     static ArrayList<TAG> tagName;
     static ArrayList<String> tag;
+    static ArrayList<String> Words; // lưu những từ độc lập
     static Map<String, ArrayList<TAG>> Transition = new HashMap<String, ArrayList<TAG>>();
     static Map<String, ArrayList<TAG>> Emission = new HashMap<String, ArrayList<TAG>>();
+    static Map<String, ArrayList<Node>> ViterbiTable = new HashMap<String, ArrayList<Node>>();
     static Map<String, Float> TotalTable = new HashMap<>();// lưu tổng số đường đi của key
+    static String[] Query; // mảng lưu câu truy vấn
+    
 
     public static void main(String[] args) {
         ReadFile();
+        String query = "Nam thích học";
+        Query = query.split(" ");
+        String[] QueryFix = Query;
+        for(int i = 0 ; i<QueryFix.length;i++){
+            QueryFix[i] += "_"+i;
+        }
+        InitArrayWords(Emission,tag);
+        smoothTransition(Transition,TotalTable,tag);
+        smoothEmission(Emission,TotalTable,tag,Words);
+        InitViterbiTable(QueryFix, tag);
         System.out.println("done");
     }
 
@@ -147,6 +161,8 @@ public class Main {
         }
     }
     
+    // hàm smooth bảng Transition, các tham số truyền vào để biết lấy dữ liệu từ những bảng nào
+    // mặc dù chúng đag là biến toàn cục
    static void smoothTransition(Map<String, ArrayList<TAG>> Transition,
             Map<String, Float> TotalTable,
             ArrayList<String> tag)
@@ -154,8 +170,8 @@ public class Main {
         float total;
         ArrayList<TAG> result;
         for(String s : tag){
-            total = TotalTable.get(s);
-            total += 6; // smooth mẫu +6
+            total = TotalTable.get(s); 
+            total += (tag.size()-2); // smooth mẫu + số lượng tag có thể có,trừ đi 2 tag thừa khi đọc file
             result = Transition.get(s);
             for(TAG t :result){
                 if(t.getValue()==0){
@@ -168,4 +184,50 @@ public class Main {
             }
         }
     }
+   
+   static void smoothEmission(Map<String, ArrayList<TAG>> Emission,
+            Map<String, Float> TotalTable,
+            ArrayList<String> tag, ArrayList<String> Word){
+        float total;
+        int size = Words.size(); // số lượng từ độc lập trong tập train
+        ArrayList<TAG> result;
+        for(String s : tag){
+            total = TotalTable.get(s); // lấy giá trị lưu ở TotalTable
+            total += size; // + thêm tổng số từ độc lập nữa
+            result = Emission.get(s);
+            for(TAG t :result){
+                if(t.getValue()==0){
+                    //nếu giá trị = 0 thì smooth = 1/total
+                    t.setValue(1/total);
+                }else{
+                    //ngược lại smooth = value+1/total
+                    t.setValue((t.getValue()+1)/total);
+                }
+            }
+        }
+   }
+   
+   // Hàm tạo danh sách từ độc lập trong tập train
+   static void InitArrayWords(Map<String, ArrayList<TAG>> Emission,ArrayList<String> tag){
+       Words = new ArrayList<>();
+       ArrayList<TAG> myTag = null;
+       for(String t : tag){
+           myTag = Emission.get(t);
+           for(TAG i : myTag){
+               if(!Words.contains(i.getTagName())){
+                   Words.add(i.getTagName());
+               }
+           }
+       }
+   }
+   
+   // Hàm tạo bảng Viterbi
+   static void InitViterbiTable(String[] query,ArrayList<String>tag){
+       ArrayList<Node> myNode;
+       for(String w : query){
+          
+       }
+   }
+   
+   
 }
